@@ -366,7 +366,7 @@ public class GanttChartView extends HorizontalScrollView {
 
     public void setFilter(Predicate<GanttTask> p) {
         filterPredicate = (p != null) ? p : (t -> true);
-        hasFilter = (p != null);
+        hasFilter = (p != null);  // track state explicitly
         drawGrid();
     }
 
@@ -404,7 +404,7 @@ public class GanttChartView extends HorizontalScrollView {
      * Check if any filter is currently active
      */
     public boolean hasActiveFilter() {
-        return filterPredicate != null && !filterPredicate.equals(t -> true);
+        return hasFilter;  // simple boolean check
     }
 
     /**
