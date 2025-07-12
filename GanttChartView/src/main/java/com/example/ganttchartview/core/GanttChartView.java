@@ -377,6 +377,41 @@ public class GanttChartView extends HorizontalScrollView {
         setFilter(t -> user == null || user.equals(t.getAssignedTo()));
     }
 
+    /**
+     * Filter tasks by color
+     */
+    public void filterByColor(int color) {
+        setFilter(t -> t.getColor() == color);
+    }
+
+    /**
+     * Filter tasks by date range
+     */
+    public void filterByDateRange(Date startDate, Date endDate) {
+        setFilter(t -> t.getStart().after(startDate) && t.getEnd().before(endDate));
+    }
+
+    /**
+     * Filter tasks by duration (in milliseconds)
+     */
+    public void filterByMinDuration(long minDurationMs) {
+        setFilter(t -> (t.getEnd().getTime() - t.getStart().getTime()) >= minDurationMs);
+    }
+
+    /**
+     * Check if any filter is currently active
+     */
+    public boolean hasActiveFilter() {
+        return filterPredicate != null && !filterPredicate.equals(t -> true);
+    }
+
+    /**
+     * Get count of currently visible (filtered) tasks
+     */
+    public int getVisibleTaskCount() {
+        return (int) allTasks.stream().filter(filterPredicate).count();
+    }
+
     public void setOnTaskClickListener(OnTaskClickListener l) {
         onTaskClickListener = l;
     }
