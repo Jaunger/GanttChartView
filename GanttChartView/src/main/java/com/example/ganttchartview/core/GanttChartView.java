@@ -115,6 +115,10 @@ public class GanttChartView extends HorizontalScrollView {
         init(context, attrs);
     }
 
+    public GanttChartView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(context, attrs);
+    }
     /* ---------- initialisation ---------- */
 
     private void init(Context ctx, @Nullable AttributeSet attrs) {
