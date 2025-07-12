@@ -66,6 +66,7 @@ public class GanttChartView extends HorizontalScrollView {
 
     private final List<GanttTask> allTasks = new ArrayList<>();
     private Predicate<GanttTask> filterPredicate = t -> true;   // show all
+    private boolean hasFilter = false;  // track if filter is active
     /* ---------- configurable defaults ---------- */
 
     private int customStartHour = 8;   // first visible hour (DAY scale)
@@ -365,6 +366,7 @@ public class GanttChartView extends HorizontalScrollView {
 
     public void setFilter(Predicate<GanttTask> p) {
         filterPredicate = (p != null) ? p : (t -> true);
+        hasFilter = (p != null);
         drawGrid();
     }
 
