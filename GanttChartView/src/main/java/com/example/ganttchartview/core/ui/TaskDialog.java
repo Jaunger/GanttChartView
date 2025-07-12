@@ -17,19 +17,22 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-/** Stateless helper – *shows* and immediately returns the built dialog. */
+/**
+ * Stateless helper – *shows* and immediately returns the built dialog.
+ */
 public final class TaskDialog {
 
-    private TaskDialog() {}
+    private TaskDialog() {
+    }
 
     public static void showDetails(Context ctx,
                                    GanttTask task,
                                    TimeScale scale) {
 
         SimpleDateFormat fmt =
-                (scale == TimeScale.HOUR)  ? new SimpleDateFormat("HH:mm",       Locale.getDefault()) :
-                        (scale == TimeScale.DAY )  ? new SimpleDateFormat("EEE  dd MMM", Locale.getDefault()) :
-                                new SimpleDateFormat("MMM yyyy",   Locale.getDefault());
+                (scale == TimeScale.HOUR) ? new SimpleDateFormat("HH:mm", Locale.getDefault()) :
+                        (scale == TimeScale.DAY) ? new SimpleDateFormat("EEE  dd MMM", Locale.getDefault()) :
+                                new SimpleDateFormat("MMM yyyy", Locale.getDefault());
 
         StringBuilder msg = new StringBuilder()
                 .append("When: ")

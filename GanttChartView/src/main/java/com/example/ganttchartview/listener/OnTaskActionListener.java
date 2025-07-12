@@ -9,4 +9,5 @@ public interface OnTaskActionListener {
      * @param dir -> +1 = swipe-right, -1 = swipe-left
      */
     void onSwipe(GanttTask task, int dir);
+
 }

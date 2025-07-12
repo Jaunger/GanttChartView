@@ -101,7 +101,4 @@ public class GridPainter {
         return overlays;
     }
 
-    /* util */ private static int dp(Context ctx, int dp) {
-        return (int)(dp * ctx.getResources().getDisplayMetrics().density + 0.5f);
-    }
 }

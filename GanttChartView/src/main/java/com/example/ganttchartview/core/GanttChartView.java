@@ -3,12 +3,8 @@ package com.example.ganttchartview.core;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.StateListDrawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.StateSet;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -51,6 +47,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import com.example.ganttchartview.core.layout.TrackPacker;
@@ -74,7 +71,7 @@ public class GanttChartView extends HorizontalScrollView {
     private int customStartHour = 8;   // first visible hour (DAY scale)
     private int customEndHour = 20;  // last visible hour  (DAY scale)
 
-    private int labelWidth = 180; // px – width of task title column
+    private final int labelWidth = 180; // px – width of task title column
 
     /* ---------- styleable fields (set via XML) ---------- */
 
@@ -123,7 +120,7 @@ public class GanttChartView extends HorizontalScrollView {
 
     private void init(Context ctx, @Nullable AttributeSet attrs) {
         setHorizontalScrollBarEnabled(false);
-
+        setOnTaskActionListener(fgt); // default actions for task blocks
         applyXmlAttrs(ctx, attrs);
         buildUi(ctx);
         initPinchZoom(ctx);
@@ -132,51 +129,38 @@ public class GanttChartView extends HorizontalScrollView {
     }
 
     private void applyXmlAttrs(Context ctx, @Nullable AttributeSet attrs) {
-        headerTextSize = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics());
+        headerTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics());
 
         if (attrs == null) return;
 
-        TypedArray a = ctx.obtainStyledAttributes(attrs, R.styleable.GanttChartView);
-        try {
-            timeScale = TimeScale.fromAttrIndex(
-                    a.getInt(R.styleable.GanttChartView_timeScale, 0));
-            rowHeight = a.getDimensionPixelSize(
-                    R.styleable.GanttChartView_rowHeight, rowHeight);
-            labelTextSize = a.getDimension(
-                    R.styleable.GanttChartView_labelTextSize, labelTextSize);
-            hourWidth = unitWidth = a.getDimensionPixelSize(
-                    R.styleable.GanttChartView_unitWidth, unitWidth);
-            gridColor = a.getColor(
-                    R.styleable.GanttChartView_gridColor, gridColor);
-            taskPressedColor = a.getColor(
-                    R.styleable.GanttChartView_taskPressedColor, taskPressedColor);
-            headerTextSize = a.getDimension(
-                    R.styleable.GanttChartView_headerTextSize, headerTextSize);
-        } finally {
-            a.recycle();
+        try (TypedArray a = ctx.obtainStyledAttributes(attrs, R.styleable.GanttChartView)) {
+            timeScale = TimeScale.fromAttrIndex(a.getInt(R.styleable.GanttChartView_timeScale, 0));
+            rowHeight = a.getDimensionPixelSize(R.styleable.GanttChartView_rowHeight, rowHeight);
+            labelTextSize = a.getDimension(R.styleable.GanttChartView_labelTextSize, labelTextSize);
+            hourWidth = unitWidth = a.getDimensionPixelSize(R.styleable.GanttChartView_unitWidth, unitWidth);
+            gridColor = a.getColor(R.styleable.GanttChartView_gridColor, gridColor);
+            taskPressedColor = a.getColor(R.styleable.GanttChartView_taskPressedColor, taskPressedColor);
+            headerTextSize = a.getDimension(R.styleable.GanttChartView_headerTextSize, headerTextSize);
         }
     }
 
     private void initPinchZoom(Context ctx) {
-        scaleDetector = new ScaleGestureDetector(ctx,
-                new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-                    @Override
-                    public boolean onScale(
-                            @NonNull ScaleGestureDetector detector) {
-                        float newPx = hourWidth * detector.getScaleFactor();
-                        float dp = newPx / getResources().getDisplayMetrics().density;
-                        dp = Math.max(MIN_UNIT_DP, Math.min(MAX_UNIT_DP, dp));
-                        newPx = dp * getResources().getDisplayMetrics().density;
+        scaleDetector = new ScaleGestureDetector(ctx, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            @Override
+            public boolean onScale(@NonNull ScaleGestureDetector detector) {
+                float newPx = hourWidth * detector.getScaleFactor();
+                float dp = newPx / getResources().getDisplayMetrics().density;
+                dp = Math.max(MIN_UNIT_DP, Math.min(MAX_UNIT_DP, dp));
+                newPx = dp * getResources().getDisplayMetrics().density;
 
-                        if ((int) newPx != hourWidth) {
-                            hourWidth = unitWidth = (int) newPx;
-                            drawHeaderRow();
-                            drawGrid();
-                        }
-                        return true;
-                    }
-                });
+                if ((int) newPx != hourWidth) {
+                    hourWidth = unitWidth = (int) newPx;
+                    drawHeaderRow();
+                    drawGrid();
+                }
+                return true;
+            }
+        });
     }
 
     private void buildUi(Context ctx) {
@@ -188,17 +172,13 @@ public class GanttChartView extends HorizontalScrollView {
         headerRow.setOrientation(LinearLayoutCompat.HORIZONTAL);
         headerRow.setPadding(labelWidth, 0, 0, 0);
         headerRow.setFocusable(true);
-        ViewCompat.setAccessibilityDelegate(headerRow,
-                new AccessibilityDelegateCompat() {
-                    @Override
-                    public void onInitializeAccessibilityNodeInfo(
-                            @NonNull View host, @NonNull AccessibilityNodeInfoCompat info) {
-                        super.onInitializeAccessibilityNodeInfo(host, info);
-                        info.setCollectionInfo(
-                                AccessibilityNodeInfoCompat.CollectionInfoCompat
-                                        .obtain(1, getColumnCount(), false));
-                    }
-                });
+        ViewCompat.setAccessibilityDelegate(headerRow, new AccessibilityDelegateCompat() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(@NonNull View host, @NonNull AccessibilityNodeInfoCompat info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                info.setCollectionInfo(AccessibilityNodeInfoCompat.CollectionInfoCompat.obtain(1, getColumnCount(), false));
+            }
+        });
         outer.addView(headerRow);
 
         vScroll = new ScrollView(ctx);
@@ -271,8 +251,7 @@ public class GanttChartView extends HorizontalScrollView {
         gridContainer.removeAllViews();
 
         /* 1 ─ filter & group (helper lives in TrackPacker) */
-        Map<String, List<GanttTask>> groups =
-                TrackPacker.group(allTasks, filterPredicate);
+        Map<String, List<GanttTask>> groups = TrackPacker.group(allTasks, filterPredicate);
 
         int zebraRow = 0;                          // for alternating backgrounds
         int cols = getColumnCount();           // hour / weekday / month columns
@@ -286,11 +265,7 @@ public class GanttChartView extends HorizontalScrollView {
             int trackCount = Collections.max(trackOf.values()) + 1;
 
             /* build rows + faint grid in one call */
-            List<FrameLayout> overlays = GridPainter.buildRows(
-                    getContext(), gridContainer,
-                    trackCount, cols,
-                    labelWidth, rowHeight, hourWidth,
-                    gridColor, zebraRow);
+            List<FrameLayout> overlays = GridPainter.buildRows(getContext(), gridContainer, trackCount, cols, labelWidth, rowHeight, hourWidth, gridColor, zebraRow);
 
             /* 3 ─ drop each coloured task block */
             for (GanttTask t : tasks) {
@@ -303,18 +278,15 @@ public class GanttChartView extends HorizontalScrollView {
                 int pxLeft = Math.round(off * hourWidth);
                 int pxWidth = Math.max(Math.round(span * hourWidth), dpToPx(3));
 
-                int track = trackOf.get(t);
-                AppCompatTextView block = TaskBlockFactory.build(
-                        getContext(), t,
-                        pxLeft, pxWidth, rowHeight,
-                        taskPressedColor, hourWidth,
-                        onTaskClickListener, fgt, timeScale);
+                Integer track = trackOf.get(t);
+                if (track == null) continue;
+
+                AppCompatTextView block = TaskBlockFactory.build(getContext(), t, pxLeft, pxWidth, rowHeight, taskPressedColor, hourWidth, onTaskClickListener, onTaskActionListener, timeScale);
 
                 overlays.get(track).addView(block);
 
                 /* label column = first title per track */
-                LinearLayoutCompat row =
-                        (LinearLayoutCompat) gridContainer.getChildAt(zebraRow + track);
+                LinearLayoutCompat row = (LinearLayoutCompat) gridContainer.getChildAt(zebraRow + track);
                 AppCompatTextView lbl = (AppCompatTextView) row.getChildAt(0);
                 if (TextUtils.isEmpty(lbl.getText())) lbl.setText(t.getTitle());
             }
@@ -436,8 +408,7 @@ public class GanttChartView extends HorizontalScrollView {
      * ----------------------------------------------------------- */
     private void showFullEditDialog(GanttTask task, boolean isNew) {
 
-        View form = LayoutInflater.from(getContext())
-                .inflate(R.layout.dialog_edit_task, null, false);
+        View form = LayoutInflater.from(getContext()).inflate(R.layout.dialog_edit_task, null, false);
 
         // --- bind views ---------------------------------------------------
         AppCompatEditText titleIn = form.findViewById(R.id.editTitle);
@@ -453,8 +424,7 @@ public class GanttChartView extends HorizontalScrollView {
         infoIn.setText(task.getInfo());
 
         TaskColor[] palette = TaskColor.values();
-        colorIn.setAdapter(new ArrayAdapter<>(getContext(),
-                android.R.layout.simple_spinner_dropdown_item, palette));
+        colorIn.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, palette));
         colorIn.setSelection(TaskColor.from(task.getColor()).ordinal());
 
         /* calendars that mutate live when pickers return */
@@ -464,21 +434,14 @@ public class GanttChartView extends HorizontalScrollView {
         updateLabel(btnStart, calStart.getTime());
         updateLabel(btnEnd, calEnd.getTime());
 
-        View.OnClickListener openPicker = v ->
-                DialogStyler.show(v.getId() == R.id.btnStart ? calStart : calEnd,
-                        timeScale, (MaterialButton) v, getContext());
+        View.OnClickListener openPicker = v -> DialogStyler.show(v.getId() == R.id.btnStart ? calStart : calEnd, timeScale, (MaterialButton) v, getContext());
 
         btnStart.setOnClickListener(openPicker);
         btnEnd.setOnClickListener(openPicker);
 
         // --- build dialog -------------------------------------------------
-        AlertDialog dlg = new MaterialAlertDialogBuilder(
-                getContext(), R.style.Widget_Gantt_Dialog)
-                .setTitle(isNew ? "New task" : "Edit task")
-                .setView(form)
-                .setPositiveButton(isNew ? "ADD" : "SAVE", null)   // overrides below
-                .setNegativeButton("CANCEL", null)
-                .create();
+        AlertDialog dlg = new MaterialAlertDialogBuilder(getContext(), R.style.Widget_Gantt_Dialog).setTitle(isNew ? "New task" : "Edit task").setView(form).setPositiveButton(isNew ? "ADD" : "SAVE", null)   // overrides below
+                .setNegativeButton("CANCEL", null).create();
 
         dlg.setOnShowListener(di -> {
             Button pos = dlg.getButton(AlertDialog.BUTTON_POSITIVE);
@@ -489,14 +452,13 @@ public class GanttChartView extends HorizontalScrollView {
 
             pos.setOnClickListener(v -> {
                 if (!calEnd.getTime().after(calStart.getTime())) {
-                    Toast.makeText(getContext(),
-                            "End must be after start", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "End must be after start", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 // copy fields back
-                task.setTitle(titleIn.getText().toString().trim());
-                task.setAssignedTo(assignIn.getText().toString().trim());
-                task.setInfo(infoIn.getText().toString().trim());
+                task.setTitle(Objects.requireNonNull(titleIn.getText()).toString().trim());
+                task.setAssignedTo(Objects.requireNonNull(assignIn.getText()).toString().trim());
+                task.setInfo(Objects.requireNonNull(infoIn.getText()).toString().trim());
                 task.setColor(palette[colorIn.getSelectedItemPosition()].argb);
                 task.setStart(calStart.getTime());
                 task.setEnd(calEnd.getTime());
@@ -547,13 +509,10 @@ public class GanttChartView extends HorizontalScrollView {
             allTasks.remove(task);
             drawGrid();
 
-            Snackbar.make(GanttChartView.this,
-                            "Task deleted", Snackbar.LENGTH_LONG)
-                    .setAction("UNDO", v -> {
-                        allTasks.add(Math.min(idx, allTasks.size()), task);
-                        drawGrid();
-                    })
-                    .show();
+            Snackbar.make(GanttChartView.this, "Task deleted", Snackbar.LENGTH_LONG).setAction("UNDO", v -> {
+                allTasks.add(Math.min(idx, allTasks.size()), task);
+                drawGrid();
+            }).show();
         }
 
         @Override

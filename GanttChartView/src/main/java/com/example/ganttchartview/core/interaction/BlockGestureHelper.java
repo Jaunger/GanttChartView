@@ -1,11 +1,12 @@
 package com.example.ganttchartview.core.interaction;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+
+import androidx.annotation.NonNull;
 
 import com.example.ganttchartview.R;
 import com.example.ganttchartview.listener.OnTaskActionListener;
@@ -16,7 +17,6 @@ import java.util.function.Consumer;
 
 /**
  * Attaches click, long-press & swipe behaviour to a task block view.
- *
  *  • single-tap  → clickHandler.run()
  *  • long-press → Edit / Delete chooser (or delegate to OnTaskActionListener)
  *  • swipe      → onSwipe(dir) in OnTaskActionListener
@@ -29,6 +29,10 @@ public final class BlockGestureHelper {
                               Consumer<GanttTask> clickHandler,
                               OnTaskActionListener delegate,
                               int hourWidthPx) {
+
+        block.setOnClickListener(v -> {
+            if (clickHandler != null) clickHandler.accept(task);
+        });
 
         final boolean[] wasLong = {false};
 
@@ -53,8 +57,7 @@ public final class BlockGestureHelper {
         GestureDetector swipe = new GestureDetector(ctx,
                 new GestureDetector.SimpleOnGestureListener() {
                     private static final int THRESHOLD = 80, VELOCITY = 200;
-                    @Override
-                    public boolean onFling(MotionEvent e1, MotionEvent e2,
+                    public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2,
                                            float vx, float vy) {
                         float dx = e2.getX() - e1.getX();
                         if (Math.abs(dx) > THRESHOLD && Math.abs(vx) > VELOCITY) {

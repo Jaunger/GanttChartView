@@ -11,8 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.ganttchartview.core.GanttChartView;
 import com.example.ganttchartview.core.export.ExportUtils;
-import com.example.ganttchartview.core.ui.TaskDialog;
-import com.example.ganttchartview.listener.OnTaskActionListener;
 import com.example.ganttchartview.model.GanttTask;
 import com.example.ganttchartview.model.TimeScale;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -34,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private int modeIdx = -1;          // will start at 0 after first click
     private GanttChartView gantt;
     private Button btnMode;
-    private FloatingActionButton btnAdd; // unused, but shows FAB works
+
     /* ------------------------------------------------------------------ */
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,20 +43,11 @@ public class MainActivity extends AppCompatActivity {
         btnMode   = findViewById(R.id.btnMode);
         Button btnCsv = findViewById(R.id.btnCsv);
         Button btnPdf = findViewById(R.id.btnPdf);
-        btnAdd    = findViewById(R.id.fabAdd); // unused, but shows FAB works
+        // unused, but shows FAB works
+        FloatingActionButton btnAdd = findViewById(R.id.fabAdd); // unused, but shows FAB works
 
-        /* swipe toast – proves gestures still work */
-        gantt.setOnTaskActionListener(new OnTaskActionListener() {
-            @Override public void onEdit  (GanttTask t) {}
-            @Override public void onDelete(GanttTask t) {}
-            @Override public void onSwipe (GanttTask t,int dir){
-                Toast.makeText(MainActivity.this,
-                        (dir>0? "→ " : "← ") + t.getTitle(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
 
-       btnAdd.setOnClickListener(v -> {
+        btnAdd.setOnClickListener(v -> {
             // unused, but shows FAB works
            gantt.openNewTaskDialog();
             Toast.makeText(this, "Add button clicked!", Toast.LENGTH_SHORT).show();

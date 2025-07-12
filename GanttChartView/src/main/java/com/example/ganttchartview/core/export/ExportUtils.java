@@ -25,8 +25,6 @@ import java.util.List;
  */
 public class ExportUtils {
 
-    /* ---------- CSV ---------- */
-
     public static Uri exportCsv(Context ctx,
                                 List<GanttTask> tasks,
                                 String fileName) throws IOException {
