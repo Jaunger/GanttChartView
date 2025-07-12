@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GanttChartView">
+        <attr name="rowHeight" format="dimension" />
+        <attr name="timeScale" format="enum">
+            <enum name="hour"  value="0"/>
+            <enum name="day"   value="1"/>
+            <enum name="month" value="2"/>
+        </attr>
+        <attr name="gridColor" format="color" />
+        <attr name="labelTextSize" format="dimension" />
+        <attr name="unitWidth"   format="dimension" />
+        <attr name="headerTextSize" format="dimension"/>
+        <attr name="taskPressedColor" format="color" />
+    </declare-styleable>
+</resources>

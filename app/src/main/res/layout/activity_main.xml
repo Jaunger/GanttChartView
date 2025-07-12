@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- ── top button bar ─────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/btnBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="12dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/btnMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mode: HOUR"/>
+
+        <Button
+            android:id="@+id/btnCsv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CSV"/>
+
+        <Button
+            android:id="@+id/btnPdf"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PDF"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Add task"
+            android:src="@drawable/outline_add_2_24"
+            app:fabSize="normal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@android:color/white" />
+    </LinearLayout>
+
+    <!-- ── the Gantt view itself ──────────────────────────────────── -->
+    <com.example.ganttchartview.core.GanttChartView
+        android:id="@+id/gantt"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:layout_constraintTop_toBottomOf="@id/btnBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:rowHeight="90dp"
+        app:unitWidth="90dp"
+        app:headerTextSize="16dp"
+        app:gridColor="@color/gantt_grid"
+        app:taskPressedColor="@color/task_pressed"
+        app:timeScale="hour" />   <!-- initial value, overwritten in code -->
+</androidx.constraintlayout.widget.ConstraintLayout>

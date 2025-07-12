@@ -1,0 +1,21 @@
+<resources>
+    <!-- greys / lines -->
+    <color name="gantt_grid">#E0E0E0</color>
+    <color name="gantt_grid_dark">#BDBDBD</color>
+    <color name="gantt_background_alt">#FAFAFA</color>
+
+    <!-- text -->
+    <color name="gantt_text_primary">#212121</color>
+    <color name="gantt_text_secondary">#424242</color>
+
+    <!-- task colours (Material-y) -->
+    <color name="task_blue">#64B5F6</color>
+    <color name="task_green">#81C784</color>
+    <color name="task_yellow">#FFD54F</color>
+    <color name="task_red">#EF9A9A</color>
+    <color name="task_purple">#BA68C8</color>
+<color name="gantt_onPrimary">#FFFFFF</color>
+  <color name="gantt_task_blue_dark">#1976D2</color>
+    <!-- pressed / ripple -->
+    <color name="task_pressed">#FFFF8D</color>
+</resources>

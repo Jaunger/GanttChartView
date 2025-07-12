@@ -1,0 +1,12 @@
+<resources>
+    <!-- Buttons / titles -->
+    <string name="gantt_title_new">New task</string>
+    <string name="gantt_title_edit">Edit task</string>
+    <string name="gantt_btn_add">ADD</string>
+    <string name="gantt_btn_save">SAVE</string>
+    <string name="gantt_btn_cancel">CANCEL</string>
+    <string name="gantt_btn_close">CLOSE</string>
+
+    <!-- Error -->
+    <string name="gantt_error_range">End must be after start</string>
+</resources>

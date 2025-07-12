@@ -1,0 +1,35 @@
+<resources>
+    <style name="Widget.Gantt.TaskBlock">
+        <item name="android:textColor">@color/gantt_text_primary</item>
+        <item name="android:gravity">center</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+    </style>
+    <style name="Gantt.PositiveButton" parent="">
+        <item name="android:backgroundTint">@color/task_blue</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:insetLeft">24dp</item>
+        <item name="android:insetRight">24dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:background">@drawable/dialog_positive_bg</item>
+    </style>
+    <!-- Base overlay for every Gantt pop-up -->
+    <style name="Widget.Gantt.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="shapeAppearanceMediumComponent">@style/Shape.Gantt.Dialog</item>
+    </style>
+
+    <style name="Shape.Gantt.Dialog" parent="">
+        <item name="cornerSize">24dp</item>
+    </style>
+
+    <style name="Widget.Gantt.HeaderCell">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/gantt_text_secondary</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Widget.Gantt" parent ="android:Widget">
+    </style>
+</resources>

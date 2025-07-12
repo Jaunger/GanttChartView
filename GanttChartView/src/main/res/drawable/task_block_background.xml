@@ -1,0 +1,5 @@
+<!-- res/drawable/task_block_background.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FFBB86FC" /> <!-- Or dynamic via code -->
+    <corners android:radius="8dp"/>
+</shape>
