@@ -3,6 +3,7 @@ package com.example.ganttchartview.core;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -10,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -370,14 +373,43 @@ public class GanttChartView extends HorizontalScrollView {
 
 
     /**
-     * Updates the scroll height based on the number of visible rows.
-     * @param rowCount The number of rows.
+     * Dynamically updates the height of the vertical scroll area to fit the number of rows,
+     * ensuring it does not exceed the available screen space and never collapses below a single row.
+     * This method accounts for system insets and is posted to the UI thread for layout safety.
+     *
+     * @param rowCount The number of rows to display in the grid.
      */
     private void updateScrollHeight(int rowCount) {
         if (vScroll == null) return;
-        int maxVisibleRows = 8;
-        int height = Math.min(Math.max(rowCount, 1), maxVisibleRows) * rowHeight;
-        vScroll.setLayoutParams(new LinearLayoutCompat.LayoutParams(LayoutParams.MATCH_PARENT, height));
+
+        final int wanted = Math.max(rowCount, 1) * rowHeight;
+
+        post(() -> {
+            int[] loc = new int[2];
+            vScroll.getLocationOnScreen(loc);
+            int vScrollTop = loc[1];
+
+            Rect win = new Rect();
+            getWindowVisibleDisplayFrame(win);
+            int screenBottom = win.bottom;
+
+            int insetBottom = 0;
+            if (android.os.Build.VERSION.SDK_INT >= 30) {
+                WindowInsets in = Objects.requireNonNull(ViewCompat.getRootWindowInsets(this)).toWindowInsets();
+                if (in != null) insetBottom = in.getInsets(WindowInsets.Type.systemBars()).bottom;
+            }
+
+            int available = screenBottom - insetBottom - vScrollTop - dpToPx(8);
+
+            int finalH = Math.min(wanted, available);
+            if (finalH < rowHeight) finalH = rowHeight;          // never collapse
+
+            ViewGroup.LayoutParams lp = vScroll.getLayoutParams();
+            if (lp.height != finalH) {
+                lp.height = finalH;
+                vScroll.setLayoutParams(lp);                     // re-measure
+            }
+        });
     }
 
     /**
@@ -485,6 +517,35 @@ public class GanttChartView extends HorizontalScrollView {
      */
     public boolean hasActiveFilter() {
         return hasFilter;  // simple boolean check
+    }
+
+    public TimeScale getTimeScale() {
+        return timeScale;
+    }
+
+    public static class FilterManager<T> {
+        private Predicate<T> filterPredicate;
+        private boolean isDefaultFilterActive; // Flag
+
+        public void setFilterPredicate(Predicate<T> predicate) {
+            this.filterPredicate = predicate;
+            this.isDefaultFilterActive = false; // Any custom predicate is not default
+        }
+
+        public void setDefaultPassThroughFilter() {
+            this.filterPredicate = t -> true; // Set to a pass-through
+            this.isDefaultFilterActive = true;
+        }
+
+        public void clearFilter() {
+            this.filterPredicate = null;
+            this.isDefaultFilterActive = false;
+        }
+
+        public boolean hasActiveFilter() {
+            // An active filter is one that's set and not the default pass-through one
+            return filterPredicate != null && !isDefaultFilterActive;
+        }
     }
 
     /**
