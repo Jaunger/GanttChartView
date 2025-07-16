@@ -34,7 +34,7 @@ android {
                 create<MavenPublication>("release") {
                     groupId = "com.github.Jaunger" // Change as needed
                     artifactId = "GanttChartView" // Change as needed
-                    version = "1.0.0" // Change as needed
+                    version = "1.0.1" // Change as needed
                     artifact(tasks.getByName("bundleReleaseAar"))
 
                     // Add dependencies to the Maven publication configuration (api or implementation)

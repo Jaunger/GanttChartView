@@ -46,13 +46,10 @@ public class MainActivity extends AppCompatActivity {
         wireMode();
         wireExports();
         wireAliceToggle();
-        wireTaskCounter();
 
-        // start in HOUR mode
         btnMode.callOnClick();
     }
 
-    /* ─── view look-ups ───────────────────────────────────────── */
     private void bindViews() {
         gantt        = findViewById(R.id.gantt);
 
@@ -65,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
         txtTaskCount = findViewById(R.id.txtTaskCount);
     }
 
-    /* ─── FAB (add task) ─────────────────────────────────────── */
     private void wireFab() {
         FloatingActionButton fab = findViewById(R.id.fabAdd);
         fab.setOnClickListener(v -> {
@@ -74,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /* ─── MODE button ────────────────────────────────────────── */
     private void wireMode() {
         btnMode.setOnClickListener(v -> {
             modeIdx = (modeIdx + 1) % MODES.length;
@@ -87,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /* ─── EXPORT buttons (tap = save, long = share) ──────────── */
     private void wireExports() {
 
         btnCsv.setOnClickListener(v -> saveCsv());
@@ -145,19 +139,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /* ─── live counter ───────────────────────────────────────── */
-    private void wireTaskCounter() {
-        gantt.setOnTaskActionListener(new OnTaskActionListener() {
-            @Override public void onEdit  (GanttTask t){ updateTaskCount(); }
-            @Override public void onDelete(GanttTask t){ updateTaskCount(); }
-            @Override public void onSwipe (GanttTask t,int dir){ }
-        });
-    }
     private void updateTaskCount() {
         txtTaskCount.setText("Tasks: " + gantt.getVisibleTaskCount());
     }
 
-    /* ─── demo data ──────────────────────────────────────────── */
     private void loadDemo(TimeScale scale){
         switch (scale){
             case HOUR:  loadDay();   break;
@@ -189,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
         gantt.setTasks(l);
     }
 
-    /* helpers (unchanged logic) -------------------------------- */
     private GanttTask hour(String t,int h1,int h2,String hex,String user){
         Calendar c=Calendar.getInstance(); c.set(Calendar.HOUR_OF_DAY,h1);
         Date s=c.getTime(); c.set(Calendar.HOUR_OF_DAY,h2);
@@ -221,7 +205,6 @@ public class MainActivity extends AppCompatActivity {
         return new GanttTask(t,s,c.getTime(),Color.parseColor(hex),"","");
     }
 
-    /* ─── share helper / toast ───────────────────────────────── */
     private void share(String mime){
         if(lastSaved==null){ toast("Nothing saved yet"); return; }
         Intent i=new Intent(Intent.ACTION_SEND)
