@@ -36,7 +36,6 @@ public final class BlockGestureHelper {
 
         final boolean[] wasLong = {false};
 
-        /* long-press */
         block.setOnLongClickListener(v -> {
             wasLong[0] = true;
 
@@ -53,7 +52,6 @@ public final class BlockGestureHelper {
             return true;
         });
 
-        /* swipe detector */
         GestureDetector swipe = new GestureDetector(ctx,
                 new GestureDetector.SimpleOnGestureListener() {
                     private static final int THRESHOLD = 80, VELOCITY = 200;
@@ -76,7 +74,6 @@ public final class BlockGestureHelper {
                     }
                 });
 
-        /* combined touch handler */
         block.setOnTouchListener((v, ev) -> {
             if (swipe.onTouchEvent(ev)) return true;
 

@@ -70,14 +70,12 @@ public class GanttChartView extends HorizontalScrollView {
     private final List<GanttTask> allTasks = new ArrayList<>();
     private Predicate<GanttTask> filterPredicate = t -> true;   // show all
     private boolean hasFilter = false;  // track if filter is active
-    /* ---------- configurable defaults ---------- */
 
     private int customStartHour = 8;   // first visible hour (DAY scale)
     private int customEndHour = 20;  // last visible hour  (DAY scale)
 
     private final int labelWidth = 180; // px – width of task title column
 
-    /* ---------- styleable fields (set via XML) ---------- */
 
     private int hourWidth = 120; // px – will be overwritten by unitWidth
     private int rowHeight = 72;  // px
@@ -87,12 +85,10 @@ public class GanttChartView extends HorizontalScrollView {
     private int taskPressedColor = Color.parseColor("#FFDDDD");
     private float headerTextSize = labelTextSize * 1.25f;
 
-    // --- pinch-to-zoom ---
     private ScaleGestureDetector scaleDetector;
     private static final int MIN_UNIT_DP = 60;
     private static final int MAX_UNIT_DP = 240;
 
-    /* ---------- runtime ---------- */
 
     private TimeScale timeScale = TimeScale.DAY;
     private static final String[] MONTH_NAMES = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
@@ -133,7 +129,6 @@ public class GanttChartView extends HorizontalScrollView {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
-    /* ---------- initialisation ---------- */
 
     /**
      * Initializes the view, attributes, UI, and pinch-to-zoom.
@@ -231,15 +226,12 @@ public class GanttChartView extends HorizontalScrollView {
      */
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        // Pass event to the pinch detector (already there)
         scaleDetector.onTouchEvent(ev);
 
-        // If this was a single-tap ACTION_UP, fire performClick()
         if (ev.getAction() == MotionEvent.ACTION_UP && !scaleDetector.isInProgress()) {
             performClick();
         }
 
-        // Still let HorizontalScrollView handle scrolling/fling
         return super.onTouchEvent(ev);
     }
 
@@ -249,9 +241,7 @@ public class GanttChartView extends HorizontalScrollView {
      */
     @Override
     public boolean performClick() {
-        // Let the superclass (HorizontalScrollView) handle default click actions
         super.performClick();
-        // Return true because we handled the click
         return true;
     }
 
@@ -297,13 +287,11 @@ public class GanttChartView extends HorizontalScrollView {
 
         gridContainer.removeAllViews();
 
-        /* 1 ─ filter & group (helper lives in TrackPacker) */
         Map<String, List<GanttTask>> groups = TrackPacker.group(allTasks, filterPredicate);
 
-        int zebraRow = 0;                          // for alternating backgrounds
-        int cols = getColumnCount();           // hour / weekday / month columns
+        int zebraRow = 0;
+        int cols = getColumnCount();
 
-        /* 2 ─ render every group (= Assigned-to or fallback Title) */
         for (List<GanttTask> tasks : groups.values()) {
 
             tasks.sort(Comparator.comparing(GanttTask::getStart));
@@ -311,10 +299,8 @@ public class GanttChartView extends HorizontalScrollView {
             Map<GanttTask, Integer> trackOf = TrackPacker.pack(tasks);
             int trackCount = Collections.max(trackOf.values()) + 1;
 
-            /* build rows + faint grid in one call */
             List<FrameLayout> overlays = GridPainter.buildRows(getContext(), gridContainer, trackCount, cols, labelWidth, rowHeight, hourWidth, gridColor, zebraRow);
 
-            /* 3 ─ drop each coloured task block */
             for (GanttTask t : tasks) {
 
                 float[] os = TrackPacker.offsetAndSpan(t, timeScale, customStartHour);
@@ -332,7 +318,6 @@ public class GanttChartView extends HorizontalScrollView {
 
                 overlays.get(track).addView(block);
 
-                /* label column = first title per track */
                 LinearLayoutCompat row = (LinearLayoutCompat) gridContainer.getChildAt(zebraRow + track);
                 AppCompatTextView lbl = (AppCompatTextView) row.getChildAt(0);
                 if (TextUtils.isEmpty(lbl.getText())) lbl.setText(t.getTitle());
@@ -402,12 +387,12 @@ public class GanttChartView extends HorizontalScrollView {
             int available = screenBottom - insetBottom - vScrollTop - dpToPx(8);
 
             int finalH = Math.min(wanted, available);
-            if (finalH < rowHeight) finalH = rowHeight;          // never collapse
+            if (finalH < rowHeight) finalH = rowHeight;
 
             ViewGroup.LayoutParams lp = vScroll.getLayoutParams();
             if (lp.height != finalH) {
                 lp.height = finalH;
-                vScroll.setLayoutParams(lp);                     // re-measure
+                vScroll.setLayoutParams(lp);
             }
         });
     }
@@ -589,9 +574,7 @@ public class GanttChartView extends HorizontalScrollView {
         showFullEditDialog(draft, true);
     }
 
-    /* -----------------------------------------------------------
-     *  GanttChartView – new, shorter showFullEditDialog()
-     * ----------------------------------------------------------- */
+
     /**
      * Shows the full edit dialog for a task (add or edit mode).
      * @param task The task to edit.
@@ -601,7 +584,6 @@ public class GanttChartView extends HorizontalScrollView {
 
         View form = LayoutInflater.from(getContext()).inflate(R.layout.dialog_edit_task, null, false);
 
-        // --- bind views ---------------------------------------------------
         AppCompatEditText titleIn = form.findViewById(R.id.editTitle);
         AppCompatEditText assignIn = form.findViewById(R.id.editAssigned);
         AppCompatEditText infoIn = form.findViewById(R.id.editInfo);
@@ -609,7 +591,6 @@ public class GanttChartView extends HorizontalScrollView {
         MaterialButton btnStart = form.findViewById(R.id.btnStart);
         MaterialButton btnEnd = form.findViewById(R.id.btnEnd);
 
-        // --- populate -----------------------------------------------------
         titleIn.setText(task.getTitle());
         assignIn.setText(task.getAssignedTo());
         infoIn.setText(task.getInfo());
@@ -618,7 +599,6 @@ public class GanttChartView extends HorizontalScrollView {
         colorIn.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_dropdown_item, palette));
         colorIn.setSelection(TaskColor.from(task.getColor()).ordinal());
 
-        /* calendars that mutate live when pickers return */
         Calendar calStart = Calendar.getInstance(), calEnd = Calendar.getInstance();
         calStart.setTime(task.getStart());
         calEnd.setTime(task.getEnd());
@@ -630,7 +610,6 @@ public class GanttChartView extends HorizontalScrollView {
         btnStart.setOnClickListener(openPicker);
         btnEnd.setOnClickListener(openPicker);
 
-        // --- build dialog -------------------------------------------------
         AlertDialog dlg = new MaterialAlertDialogBuilder(getContext(), R.style.Widget_Gantt_Dialog).setTitle(isNew ? "New task" : "Edit task").setView(form).setPositiveButton(isNew ? "ADD" : "SAVE", null)   // overrides below
                 .setNegativeButton("CANCEL", null).create();
 
@@ -646,7 +625,7 @@ public class GanttChartView extends HorizontalScrollView {
                     Toast.makeText(getContext(), "End must be after start", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                // copy fields back
+
                 task.setTitle(Objects.requireNonNull(titleIn.getText()).toString().trim());
                 task.setAssignedTo(Objects.requireNonNull(assignIn.getText()).toString().trim());
                 task.setInfo(Objects.requireNonNull(infoIn.getText()).toString().trim());

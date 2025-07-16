@@ -42,7 +42,6 @@ import java.util.Locale;
  */
 public final class ExportUtils {
 
-    /* ──────────────────────────────  CSV  ───────────────────────────── */
 
     /**
      * Exports the supplied task list as a CSV file in the public
@@ -89,7 +88,6 @@ public final class ExportUtils {
         return scanFile(ctx, out, "text/csv");
     }
 
-    /* ──────────────────────────────  PDF  ───────────────────────────── */
 
     /**
      * Captures the <strong>entire</strong> {@link GanttChartView} – even the
@@ -132,7 +130,6 @@ public final class ExportUtils {
         return scanFile(ctx, pdfFile, "application/pdf");
     }
 
-    /* ──────────────────────────────  PNG  ───────────────────────────── */
 
     /**
      * Stores the supplied bitmap as a loss-less PNG in the public
@@ -155,7 +152,6 @@ public final class ExportUtils {
                 DateFormat.format("yyyyMMdd_HHmmss", System.currentTimeMillis()) + ".png";
 
         Bitmap bmp = renderFullSize(gantt);
-        /* Android 10+ — scoped storage: write straight to MediaStore */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ContentValues cv = new ContentValues();
             cv.put(MediaStore.Images.Media.DISPLAY_NAME, display);
@@ -174,7 +170,6 @@ public final class ExportUtils {
             return uri;
         }
 
-        /* Pre-Android 10 — classic File API + media scan */
         File dir = ensureDir(Environment.DIRECTORY_PICTURES, "GanttSnapshots");
         File out = new File(dir, display);
 
@@ -184,7 +179,6 @@ public final class ExportUtils {
         return scanFile(ctx, out, "image/png");
     }
 
-    /* ─────────────────────────  public helpers  ───────────────────── */
 
     /**
      * Convenience: renders <em>exactly what’s on-screen right now</em> into a
@@ -196,7 +190,7 @@ public final class ExportUtils {
         Bitmap bmp = Bitmap.createBitmap(v.getWidth(), v.getHeight(),
                 Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bmp);
-        c.drawColor(Color.WHITE);    // white background for PDF/PNG
+        c.drawColor(Color.WHITE);
         v.draw(c);
         return bmp;
     }
@@ -211,20 +205,17 @@ public final class ExportUtils {
     @NonNull
     public static Bitmap renderFullSize(@NonNull View v) {
 
-        // ── unwrap scroll-containers ───────────────────────────────
         View target = v;
         if ((v instanceof ScrollView) || (v instanceof HorizontalScrollView)) {
             ViewGroup vg = (ViewGroup) v;
             if (vg.getChildCount() > 0) target = vg.getChildAt(0);
         }
 
-        // ── measure at *natural* size (UNSPECIFIED) ────────────────
         int wSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         int hSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
         target.measure(wSpec, hSpec);
         target.layout(0, 0, target.getMeasuredWidth(), target.getMeasuredHeight());
 
-        // ── draw to a fresh bitmap ─────────────────────────────────
         Bitmap bmp = Bitmap.createBitmap(target.getMeasuredWidth(),
                 target.getMeasuredHeight(),
                 Bitmap.Config.ARGB_8888);
@@ -233,8 +224,6 @@ public final class ExportUtils {
         target.draw(c);
         return bmp;
     }
-
-    /* ───────────────────── internal tiny helpers ─────────────────── */
 
     /** Ensure a *public* sub-folder exists (e.g. Pictures/GanttSnapshots). */
     @NonNull

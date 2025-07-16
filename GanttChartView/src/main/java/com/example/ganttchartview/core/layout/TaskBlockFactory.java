@@ -64,7 +64,6 @@ public final class TaskBlockFactory {
     }
 
 
-    /* helper – copy-pasted from old GanttChartView ---------------------- */
     private static Drawable createSelector(int normal, int pressed){
         GradientDrawable n = round(normal), p = round(pressed);
         StateListDrawable s = new StateListDrawable();

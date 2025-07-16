@@ -38,7 +38,6 @@ public final class DialogStyler {
                             Context ctx) {
 
         if (scale == TimeScale.HOUR) {
-            /* ─── 24-hour time picker ─── */
             MaterialTimePicker tp = new MaterialTimePicker.Builder()
                     .setTimeFormat(TimeFormat.CLOCK_24H)
                     .setHour  (cal.get(Calendar.HOUR_OF_DAY))
@@ -52,7 +51,7 @@ public final class DialogStyler {
             });
             tp.show(((AppCompatActivity) ctx).getSupportFragmentManager(), null);
 
-        } else {                   // DAY or MONTH → date picker
+        } else {
             MaterialDatePicker<Long> dp = MaterialDatePicker.Builder
                     .datePicker()
                     .setSelection(cal.getTimeInMillis())
@@ -66,7 +65,6 @@ public final class DialogStyler {
         }
     }
 
-    /* formatted “2023-08-17” or “HH:mm” depending on scale */
     private static void updateLabel(Button b, java.util.Date t, TimeScale scale) {
         SimpleDateFormat fmt = (scale == TimeScale.HOUR)
                 ? new SimpleDateFormat("HH:mm",      Locale.getDefault())
