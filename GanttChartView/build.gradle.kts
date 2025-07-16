@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.maven.publish)
 }
 
 android {
@@ -25,6 +26,21 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    afterEvaluate {
+        publishing {
+            publications {
+                create<MavenPublication>("release") {
+                    groupId = "com.github.Jaunger" // Change as needed
+                    artifactId = "GanttChartView" // Change as needed
+                    version = "1.0.0" // Change as needed
+                    artifact(tasks.getByName("bundleReleaseAar"))
+
+                    // Add dependencies to the Maven publication configuration (api or implementation)
+                }
+            }
+        }
     }
 }
 
