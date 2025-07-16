@@ -25,6 +25,14 @@ import java.util.List;
  */
 public class ExportUtils {
 
+    /**
+     * Exports a list of Gantt tasks to a CSV file and returns a sharable URI.
+     * @param ctx The context.
+     * @param tasks The list of tasks to export.
+     * @param fileName The base file name (without extension).
+     * @return A content URI for the exported CSV file.
+     * @throws IOException If writing the file fails.
+     */
     public static Uri exportCsv(Context ctx,
                                 List<GanttTask> tasks,
                                 String fileName) throws IOException {
@@ -47,6 +55,14 @@ public class ExportUtils {
 
     /* ---------- PDF (bitmap snapshot) ---------- */
 
+    /**
+     * Exports the current Gantt chart as a PDF snapshot and returns a sharable URI.
+     * @param ctx The context.
+     * @param chart The GanttChartView to export.
+     * @param fileName The base file name (without extension).
+     * @return A content URI for the exported PDF file.
+     * @throws IOException If writing the file fails.
+     */
     public static Uri exportPdf(Context ctx,
                                 GanttChartView chart,
                                 String fileName) throws IOException {
@@ -75,7 +91,11 @@ public class ExportUtils {
         return uriFromFile(ctx, pdfFile);
     }
 
-    /** Renders <var>root</var> (usually outerContainer) into a Bitmap. */
+    /**
+     * Renders a View (usually the chart container) into a Bitmap.
+     * @param root The root view to render.
+     * @return The rendered Bitmap.
+     */
     public static Bitmap toBitmap(View root) {
         root.clearFocus();
         Bitmap bmp = Bitmap.createBitmap(root.getWidth(), root.getHeight(),
@@ -85,7 +105,14 @@ public class ExportUtils {
         return bmp;
     }
 
-    /** Saves <var>bmp</var> to <code>Pictures/GanttSnapshots</code> and returns the File. */
+    /**
+     * Saves a Bitmap as a PNG file in Pictures/GanttSnapshots and returns the File.
+     * @param ctx The context.
+     * @param bmp The Bitmap to save.
+     * @param fileNameNoExt The base file name (without extension).
+     * @return The File object for the saved PNG.
+     * @throws IOException If writing the file fails.
+     */
     public static File savePng(Context ctx, Bitmap bmp, String fileNameNoExt)
             throws IOException {
 
@@ -101,7 +128,11 @@ public class ExportUtils {
         return out;
     }
 
-    /** Shares <var>pngFile</var> with the system share sheet. */
+    /**
+     * Shares a PNG file with the system share sheet.
+     * @param ctx The context.
+     * @param pngFile The PNG file to share.
+     */
     public static void sharePng(Context ctx, File pngFile) {
         Uri uri = FileProvider.getUriForFile(
                 ctx, ctx.getPackageName() + ".fileprovider", pngFile);
@@ -116,8 +147,20 @@ public class ExportUtils {
 
     /* ---------- internal ---------- */
 
+    /**
+     * Escapes a string for safe CSV output.
+     * @param s The string to escape.
+     * @return The escaped string.
+     */
     private static String safe(String s) { return s == null ? "" : s.replace("\"","\"\""); }
 
+    /**
+     * Creates a file in Documents/GanttExports for export.
+     * @param ctx The context.
+     * @param fname The file name.
+     * @return The created File.
+     * @throws IOException If the directory or file cannot be created.
+     */
     private static File createFile(Context ctx, String fname) throws IOException {
         File dir = new File(ctx.getExternalFilesDir(
                 Environment.DIRECTORY_DOCUMENTS), "GanttExports");
@@ -125,6 +168,12 @@ public class ExportUtils {
         return new File(dir, fname);
     }
 
+    /**
+     * Returns a content URI for a file using FileProvider.
+     * @param ctx The context.
+     * @param f The file.
+     * @return The content URI.
+     */
     private static Uri uriFromFile(Context ctx, File f) {
         return FileProvider.getUriForFile(ctx,
                 ctx.getPackageName() + ".fileprovider", f);

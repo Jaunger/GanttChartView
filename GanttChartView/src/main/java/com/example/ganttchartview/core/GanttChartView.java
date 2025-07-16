@@ -101,39 +101,59 @@ public class GanttChartView extends HorizontalScrollView {
     private OnTaskClickListener onTaskClickListener;
     private OnTaskActionListener onTaskActionListener;
 
-    /* ---------- constructors ---------- */
-
+    /**
+     * Constructs a GanttChartView with the given context.
+     * @param context The context to use.
+     */
     public GanttChartView(Context context) {
         super(context);
         init(context, null);
     }
 
+    /**
+     * Constructs a GanttChartView with the given context and attributes.
+     * @param context The context to use.
+     * @param attrs The attribute set from XML.
+     */
     public GanttChartView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
 
+    /**
+     * Constructs a GanttChartView with the given context, attributes, and style.
+     * @param context The context to use.
+     * @param attrs The attribute set from XML.
+     * @param defStyleAttr The default style attribute.
+     */
     public GanttChartView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
     /* ---------- initialisation ---------- */
 
+    /**
+     * Initializes the view, attributes, UI, and pinch-to-zoom.
+     * @param ctx The context.
+     * @param attrs The attribute set from XML.
+     */
     private void init(Context ctx, @Nullable AttributeSet attrs) {
         setHorizontalScrollBarEnabled(false);
         setOnTaskActionListener(fgt); // default actions for task blocks
         applyXmlAttrs(ctx, attrs);
         buildUi(ctx);
         initPinchZoom(ctx);
-
         drawHeaderRow();
     }
 
+    /**
+     * Applies XML attributes to configure the view.
+     * @param ctx The context.
+     * @param attrs The attribute set from XML.
+     */
     private void applyXmlAttrs(Context ctx, @Nullable AttributeSet attrs) {
         headerTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, getResources().getDisplayMetrics());
-
         if (attrs == null) return;
-
         try (TypedArray a = ctx.obtainStyledAttributes(attrs, R.styleable.GanttChartView)) {
             timeScale = TimeScale.fromAttrIndex(a.getInt(R.styleable.GanttChartView_timeScale, 0));
             rowHeight = a.getDimensionPixelSize(R.styleable.GanttChartView_rowHeight, rowHeight);
@@ -145,6 +165,10 @@ public class GanttChartView extends HorizontalScrollView {
         }
     }
 
+    /**
+     * Initializes pinch-to-zoom gesture detection.
+     * @param ctx The context.
+     */
     private void initPinchZoom(Context ctx) {
         scaleDetector = new ScaleGestureDetector(ctx, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
@@ -153,7 +177,6 @@ public class GanttChartView extends HorizontalScrollView {
                 float dp = newPx / getResources().getDisplayMetrics().density;
                 dp = Math.max(MIN_UNIT_DP, Math.min(MAX_UNIT_DP, dp));
                 newPx = dp * getResources().getDisplayMetrics().density;
-
                 if ((int) newPx != hourWidth) {
                     hourWidth = unitWidth = (int) newPx;
                     drawHeaderRow();
@@ -164,6 +187,10 @@ public class GanttChartView extends HorizontalScrollView {
         });
     }
 
+    /**
+     * Builds the UI layout for the Gantt chart.
+     * @param ctx The context.
+     */
     private void buildUi(Context ctx) {
 
         LinearLayoutCompat outer = new LinearLayoutCompat(ctx);
@@ -194,6 +221,11 @@ public class GanttChartView extends HorizontalScrollView {
         addView(outer);
     }
 
+    /**
+     * Handles touch events, including pinch-to-zoom and click.
+     * @param ev The motion event.
+     * @return true if the event was handled.
+     */
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         // Pass event to the pinch detector (already there)
@@ -208,6 +240,10 @@ public class GanttChartView extends HorizontalScrollView {
         return super.onTouchEvent(ev);
     }
 
+    /**
+     * Handles click events for accessibility.
+     * @return true if the click was handled.
+     */
     @Override
     public boolean performClick() {
         // Let the superclass (HorizontalScrollView) handle default click actions
@@ -216,12 +252,19 @@ public class GanttChartView extends HorizontalScrollView {
         return true;
     }
 
+    /**
+     * Adds a new task to the Gantt chart.
+     * @param t The {@link GanttTask} to add.
+     */
     public void addTask(GanttTask t) {
         allTasks.add(t);
         drawGrid();
         post(() -> vScroll.smoothScrollTo(0, vScroll.getChildAt(0).getBottom()));
     }
 
+    /**
+     * Draws the header row (time, days, or months) based on the current time scale.
+     */
     private void drawHeaderRow() {
         headerRow.removeAllViews();
         int cellH = rowHeight;    // ← use same height as grid rows
@@ -245,7 +288,7 @@ public class GanttChartView extends HorizontalScrollView {
     }
 
     /**
-     * Re-draw the whole chart (HOUR / DAY / MONTH)
+     * Re-draws the entire chart (HOUR / DAY / MONTH) based on the current filter and time scale.
      */
     private void drawGrid() {
 
@@ -298,6 +341,10 @@ public class GanttChartView extends HorizontalScrollView {
         updateScrollHeight(zebraRow);
     }
 
+    /**
+     * Returns the number of columns for the current time scale.
+     * @return Number of columns.
+     */
     private int getColumnCount() {
         switch (timeScale) {
             case HOUR:
@@ -312,11 +359,20 @@ public class GanttChartView extends HorizontalScrollView {
     }
 
 
+    /**
+     * Converts dp units to pixels.
+     * @param dp The value in dp.
+     * @return The value in pixels.
+     */
     private int dpToPx(int dp) {
         return (int) (dp * getResources().getDisplayMetrics().density + 0.5f);
     }
 
 
+    /**
+     * Updates the scroll height based on the number of visible rows.
+     * @param rowCount The number of rows.
+     */
     private void updateScrollHeight(int rowCount) {
         if (vScroll == null) return;
         int maxVisibleRows = 8;
@@ -324,13 +380,21 @@ public class GanttChartView extends HorizontalScrollView {
         vScroll.setLayoutParams(new LinearLayoutCompat.LayoutParams(LayoutParams.MATCH_PARENT, height));
     }
 
-
+    /**
+     * Sets the list of tasks to be displayed in the Gantt chart.
+     * @param newTasks List of {@link GanttTask} to display. Pass null or empty to clear.
+     */
     public void setTasks(List<GanttTask> newTasks) {
         allTasks.clear();
         if (newTasks != null) allTasks.addAll(newTasks);
         drawGrid();
     }
 
+    /**
+     * Sets the visible time range for the HOUR view.
+     * @param startHour First visible hour (e.g., 8 for 8am)
+     * @param endHour Last visible hour (e.g., 20 for 8pm)
+     */
     public void setTimeRange(int startHour, int endHour) {
         customStartHour = startHour;
         customEndHour = endHour;
@@ -339,7 +403,8 @@ public class GanttChartView extends HorizontalScrollView {
     }
 
     /**
-     * switch between HOUR / DAY / MONTH
+     * Sets the time scale (HOUR, DAY, or MONTH) for the chart.
+     * @param scale The {@link TimeScale} to use
      */
     public void setTimeScale(TimeScale scale) {
         if (scale == null) scale = TimeScale.DAY;
@@ -364,67 +429,90 @@ public class GanttChartView extends HorizontalScrollView {
         }
     }
 
+    /**
+     * Sets a custom filter for which tasks are visible in the chart.
+     * @param p Predicate to filter tasks. Pass null to show all tasks.
+     */
     public void setFilter(Predicate<GanttTask> p) {
         filterPredicate = (p != null) ? p : (t -> true);
         hasFilter = (p != null);  // track state explicitly
         drawGrid();
     }
 
+    /**
+     * Removes any active task filter and shows all tasks.
+     */
     public void clearFilter() {
         setFilter(null);
     }
 
-    /* convenience */
+    /**
+     * Filters tasks by assigned user.
+     * @param user The user to filter by. Pass null to show all tasks.
+     */
     public void filterByUser(String user) {
         setFilter(t -> user == null || user.equals(t.getAssignedTo()));
     }
 
     /**
-     * Filter tasks by color
+     * Filters tasks by color.
+     * @param color The color (ARGB int) to filter by.
      */
     public void filterByColor(int color) {
         setFilter(t -> t.getColor() == color);
     }
 
     /**
-     * Filter tasks by date range
+     * Filters tasks by date range.
+     * @param startDate Start date (inclusive)
+     * @param endDate End date (inclusive)
      */
     public void filterByDateRange(Date startDate, Date endDate) {
         setFilter(t -> t.getStart().after(startDate) && t.getEnd().before(endDate));
     }
 
     /**
-     * Filter tasks by duration (in milliseconds)
+     * Filters tasks by minimum duration.
+     * @param minDurationMs Minimum duration in milliseconds
      */
     public void filterByMinDuration(long minDurationMs) {
         setFilter(t -> (t.getEnd().getTime() - t.getStart().getTime()) >= minDurationMs);
     }
 
     /**
-     * Check if any filter is currently active
+     * Checks if any filter is currently active.
+     * @return true if a filter is active, false otherwise
      */
     public boolean hasActiveFilter() {
         return hasFilter;  // simple boolean check
     }
 
     /**
-     * Get count of currently visible (filtered) tasks
+     * Gets the count of currently visible (filtered) tasks.
+     * @return Number of visible tasks
      */
     public int getVisibleTaskCount() {
         return (int) allTasks.stream().filter(filterPredicate).count();
     }
 
+    /**
+     * Sets a listener for task click events.
+     * @param l The {@link OnTaskClickListener} to use
+     */
     public void setOnTaskClickListener(OnTaskClickListener l) {
         onTaskClickListener = l;
     }
 
+    /**
+     * Sets a listener for task action events (edit, delete, swipe).
+     * @param l The {@link OnTaskActionListener} to use
+     */
     public void setOnTaskActionListener(OnTaskActionListener l) {
         onTaskActionListener = l;
     }
 
-
     /**
-     * Opens the editor pre-filled with “now → +1 h” and colour BLUE.
+     * Opens the task creation dialog, pre-filled with a 1-hour task.
      */
     public void openNewTaskDialog() {
 
@@ -443,6 +531,11 @@ public class GanttChartView extends HorizontalScrollView {
     /* -----------------------------------------------------------
      *  GanttChartView – new, shorter showFullEditDialog()
      * ----------------------------------------------------------- */
+    /**
+     * Shows the full edit dialog for a task (add or edit mode).
+     * @param task The task to edit.
+     * @param isNew True if creating a new task, false if editing.
+     */
     private void showFullEditDialog(GanttTask task, boolean isNew) {
 
         View form = LayoutInflater.from(getContext()).inflate(R.layout.dialog_edit_task, null, false);
@@ -509,15 +602,29 @@ public class GanttChartView extends HorizontalScrollView {
         dlg.show();
     }
 
+    /**
+     * Updates the label of a MaterialButton with a formatted date.
+     * @param b The button to update.
+     * @param t The date to display.
+     */
     private void updateLabel(MaterialButton b, Date t) {
         SimpleDateFormat fmt = (timeScale == TimeScale.HOUR) ? new SimpleDateFormat("HH:mm", Locale.getDefault()) : new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         b.setText(fmt.format(t));
     }
 
+    /**
+     * Returns a copy of all tasks (unfiltered).
+     * @return List of all {@link GanttTask}
+     */
     public List<GanttTask> getAllTasks() {
         return new ArrayList<>(allTasks);
     }
 
+    /**
+     * Sets the visible month range for the MONTH view.
+     * @param startMonth First visible month (1-12)
+     * @param endMonth Last visible month (1-12)
+     */
     public void setMonthRange(int startMonth, int endMonth) {
         startMonth = Math.max(1, Math.min(12, startMonth));
         endMonth = Math.max(1, Math.min(12, endMonth));

@@ -6,6 +6,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Toast;
+import android.text.TextUtils;
+import android.widget.EditText;
+import android.widget.TextView;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -32,6 +38,10 @@ public class MainActivity extends AppCompatActivity {
     private int modeIdx = -1;          // will start at 0 after first click
     private GanttChartView gantt;
     private Button btnMode;
+    private EditText filterUser, filterColor, filterDuration, filterDateStart, filterDateEnd;
+    private TextView txtTaskCount;
+    private Button btnApplyFilters, btnClearFilters, btnPng;
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     /* ------------------------------------------------------------------ */
     @Override protected void onCreate(Bundle savedInstanceState) {
@@ -43,14 +53,22 @@ public class MainActivity extends AppCompatActivity {
         btnMode   = findViewById(R.id.btnMode);
         Button btnCsv = findViewById(R.id.btnCsv);
         Button btnPdf = findViewById(R.id.btnPdf);
-        // unused, but shows FAB works
-        FloatingActionButton btnAdd = findViewById(R.id.fabAdd); // unused, but shows FAB works
+        btnPng = findViewById(R.id.btnPng);
+        FloatingActionButton btnAdd = findViewById(R.id.fabAdd);
+        filterUser = findViewById(R.id.filterUser);
+        filterColor = findViewById(R.id.filterColor);
+        filterDuration = findViewById(R.id.filterDuration);
+        filterDateStart = findViewById(R.id.filterDateStart);
+        filterDateEnd = findViewById(R.id.filterDateEnd);
+        btnApplyFilters = findViewById(R.id.btnApplyFilters);
+        btnClearFilters = findViewById(R.id.btnClearFilters);
+        txtTaskCount = findViewById(R.id.txtTaskCount);
 
 
         btnAdd.setOnClickListener(v -> {
-            // unused, but shows FAB works
-           gantt.openNewTaskDialog();
+            gantt.openNewTaskDialog();
             Toast.makeText(this, "Add button clicked!", Toast.LENGTH_SHORT).show();
+            updateTaskCount();
         });
 
         /* MODE button cycles through enum array */
@@ -77,6 +95,79 @@ public class MainActivity extends AppCompatActivity {
                 share(uri, "application/pdf");
             } catch (IOException e) { toast(e); }
         });
+        btnPng.setOnClickListener(v -> {
+            try {
+                Uri uri = Uri.fromFile(ExportUtils.savePng(this, ExportUtils.toBitmap(gantt), "gantt_snapshot"));
+                share(uri, "image/png");
+            } catch (IOException e) { toast(e); }
+        });
+
+        btnApplyFilters.setOnClickListener(v -> applyFilters());
+        btnClearFilters.setOnClickListener(v -> {
+            gantt.clearFilter();
+            clearFilterInputs();
+            updateTaskCount();
+        });
+
+        gantt.setOnTaskActionListener(new com.example.ganttchartview.listener.OnTaskActionListener() {
+            @Override public void onEdit(GanttTask t) { updateTaskCount(); }
+            @Override public void onDelete(GanttTask t) { updateTaskCount(); }
+            @Override public void onSwipe(GanttTask t, int dir) { updateTaskCount(); }
+        });
+    }
+
+    private void applyFilters() {
+        String user = filterUser.getText().toString().trim();
+        String colorStr = filterColor.getText().toString().trim();
+        String durationStr = filterDuration.getText().toString().trim();
+        String dateStartStr = filterDateStart.getText().toString().trim();
+        String dateEndStr = filterDateEnd.getText().toString().trim();
+
+        boolean any = false;
+        gantt.clearFilter();
+        if (!TextUtils.isEmpty(user)) {
+            gantt.filterByUser(user);
+            any = true;
+        }
+        if (!TextUtils.isEmpty(colorStr)) {
+            try {
+                int color = Color.parseColor(colorStr);
+                gantt.filterByColor(color);
+                any = true;
+            } catch (Exception ignored) {}
+        }
+        if (!TextUtils.isEmpty(durationStr)) {
+            try {
+                long minH = Long.parseLong(durationStr);
+                gantt.filterByMinDuration(minH * 60 * 60 * 1000);
+                any = true;
+            } catch (Exception ignored) {}
+        }
+        if (!TextUtils.isEmpty(dateStartStr) && !TextUtils.isEmpty(dateEndStr)) {
+            try {
+                Date start = dateFormat.parse(dateStartStr);
+                Date end = dateFormat.parse(dateEndStr);
+                if (start != null && end != null) {
+                    gantt.filterByDateRange(start, end);
+                    any = true;
+                }
+            } catch (ParseException ignored) {}
+        }
+        if (!any) gantt.clearFilter();
+        updateTaskCount();
+    }
+
+    private void clearFilterInputs() {
+        filterUser.setText("");
+        filterColor.setText("");
+        filterDuration.setText("");
+        filterDateStart.setText("");
+        filterDateEnd.setText("");
+    }
+
+    private void updateTaskCount() {
+        int count = gantt.getVisibleTaskCount();
+        txtTaskCount.setText("Tasks: " + count);
     }
 
     /* ------------------------------------------------------------------ */
