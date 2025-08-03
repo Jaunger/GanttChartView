@@ -221,8 +221,34 @@ The included demo app (`app` module) showcases all library features:
 ---
 
 ## Screenshots
+<!-- Row 1 (4 items) -->
+<p align="center">
+  <a href="https://github.com/user-attachments/assets/6eea411c-fe08-4eb4-94ee-4cd3412f3158">
+    <img src="https://github.com/user-attachments/assets/6eea411c-fe08-4eb4-94ee-4cd3412f3158" alt="Hour view" width="22%" loading="lazy" />
+  </a>
+  <a href="https://github.com/user-attachments/assets/7838ef5f-edea-42db-82f0-5736359158af">
+    <img src="https://github.com/user-attachments/assets/7838ef5f-edea-42db-82f0-5736359158af" alt="Day view" width="22%" loading="lazy" />
+  </a>
+     <a href="https://github.com/user-attachments/assets/8c29b416-45c0-47fe-9eba-559bb088ce93">
+    <img src="https://github.com/user-attachments/assets/8c29b416-45c0-47fe-9eba-559bb088ce93" alt="Month view (new)" width="22%" loading="lazy" />
+  </a>
+  <a href="https://github.com/user-attachments/assets/b683ee15-034b-4e0b-9262-b9b19fe4e312">
+    <img src="https://github.com/user-attachments/assets/b683ee15-034b-4e0b-9262-b9b19fe4e312" alt="Week/Day view (alt)" width="22%" loading="lazy" />
+  </a>
+</p>
 
-*Screenshots coming soon!*
+<!-- Row 2 (3 items) -->
+<p align="center">
+  <a href="https://github.com/user-attachments/assets/d4ed2f28-0a0e-45fc-bfd1-42de0993c82b">
+    <img src="https://github.com/user-attachments/assets/d4ed2f28-0a0e-45fc-bfd1-42de0993c82b" alt="Month view (alt)" width="22%" loading="lazy" />
+  </a>
+  <a href="https://github.com/user-attachments/assets/b984bf52-8b26-41e8-8704-e2679977a2bd">
+    <img src="https://github.com/user-attachments/assets/b984bf52-8b26-41e8-8704-e2679977a2bd" alt="Filters & actions" width="22%" loading="lazy" />
+  </a>
+  <a href="https://github.com/user-attachments/assets/4a8ff877-667f-4e95-89f3-577d65c307ea">
+    <img src="https://github.com/user-attachments/assets/4a8ff877-667f-4e95-89f3-577d65c307ea" alt="Export & save" width="22%" loading="lazy" />
+  </a>
+</p>
 
 ---
 
